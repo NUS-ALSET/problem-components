@@ -123,7 +123,7 @@ class JupyterProblem extends React.PureComponent {
             fullWidth
             label="Enter the url to your public solution on Colab"
             onChange={this.onSolutionFileChange}
-            style={{ padding: 24, position: 'relative' }}
+            style={{ padding: 24, position: 'relative', width: '90%' }}
           />
           {solution &&
             solution.json && (
