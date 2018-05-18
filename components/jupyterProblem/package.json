@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^1.0.0-rc.1",
+    "@material-ui/icons": "^1.0.0-rc.0",
     "@nteract/notebook-preview": "^7.1.2",
     "material-ui": "^1.0.0-beta.40",
     "material-ui-icons": "latest",
