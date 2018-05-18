@@ -203,3 +203,6 @@ class JupyterProblem extends React.PureComponent {
 }
 
 export default withStyles(styles)(JupyterProblem);
+
+// Problem prop object should have problemJson key and contains the json of the file.
+// Solution prop object should have provided and json keys. Provided will have the solution added by the instructor and json will have the data of submitted solution by student.
