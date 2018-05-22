@@ -10,22 +10,31 @@ class Example extends React.Component {
     this.state = {
       problemFetched: false,
       ProblemFile: {},
+      solution: {},
     };
     this._getProblem = this._getProblem.bind(this);
     this._getStaticProblem = this._getStaticProblem.bind(this);
+    this._getId = this._getId.bind(this);
+    this._problemSolveUpdate = this._problemSolveUpdate.bind(this);
   }
   componentDidMount() {
     // this._getProblem();
-    this._getStaticProblem();
   }
-  _problemSolveUpdate() {
-    alert('_solutionFileChange')
+  _getId(url) {
+    const len = url.length;
+    const str = url.lastIndexOf('/');
+    return url.substring(str + 1, len);
+  }
+  _problemSolveUpdate(one, two, url) {
+    const id = this._getId(url);
+    // Get File
+    this._getStaticProblem(id);
   }
   _problemSolutionSubmitRequest() {
-    alert('_problemSolutionSubmitRequest')
+    alert('_problemSolutionSubmitRequest');
   }
   _problemSolveSuccess() {
-    alert('_problemSolveSuccess')
+    alert('_problemSolveSuccess');
   }
   /**
    * Example function to get notebook's executed JSON data of given problem
@@ -34,37 +43,38 @@ class Example extends React.Component {
     fetch(json.problemUrl)
       .then(response => response.json())
       .then(data => {
-        this.setState({ ProblemFile: { problemJSON: data }, problemFetched:true })
+        this.setState({ ProblemFile: { problemJSON: data }, problemFetched: true });
       });
   }
-  _getStaticProblem() {
-    window.gapi.load("client:auth2", () => {
+  _getStaticProblem = id => {
+    window.gapi.load('client:auth2', () => {
       // 2. Initialize the JavaScript client library.
       window.gapi.client
         .init({
-          apiKey: "AIzaSyC27mcZBSKrWavXNhsDA1HJCeUurPluc1E",
+          apiKey: 'AIzaSyC27mcZBSKrWavXNhsDA1HJCeUurPluc1E',
           // clientId and scope are optional if auth is not required.
-          clientId:
-            "765594031611-aitdj645mls974mu5oo7h7m27bh50prc.apps." +
-            "googleusercontent.com",
-          discoveryDocs: [
-            "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"
-          ]
+          clientId: '765594031611-aitdj645mls974mu5oo7h7m27bh50prc.apps.' + 'googleusercontent.com',
+          discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
         })
         .then(resolve => {
           // 3. Initialize and make the API request.
-          console.log('init client', window.gapi.client.drive.files.get({
-            'fileId': '1bF3vk-jB5_Dmf7BeW3sXCtL-I1uP26ic',
-            'alt': 'media'
-          }).then((res) => console.log('res', res), (reason) => console.log('error', reason)))
+          window.gapi.client.drive.files
+            .get({
+              fileId: id,
+              alt: 'media',
+            })
+            .then(
+              res => this.setState({ solution: { json: JSON.parse(res.body), provided: JSON.parse(res.body) } }),
+              reason => console.log('error', reason),
+            );
           // window.gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
           // updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
           // console.log('resolve', resolve)
           // fetch('https://www.googleapis.com/drive/v3/files/1fu4vKrbwz4b4QzvHJzKo4CAPefIMGmd?alt=media')
           //   .then(data => console.log('------', data))
         });
-    })
-  }
+    });
+  };
   render() {
     const { problemFetched, ProblemFile } = this.state;
     return (
@@ -83,7 +93,11 @@ class Example extends React.Component {
                 problemSolveUpdate={this._problemSolveUpdate}
                 problemSolutionSubmitRequest={this._problemSolutionSubmitRequest}
                 problemSolveSuccess={this._problemSolveSuccess}
-                dispatch={() => {}} onChange={() => {}} problem={ProblemFile} solution={{}} />
+                dispatch={() => {}}
+                onChange={() => {}}
+                problem={ProblemFile}
+                solution={this.state.solution}
+              />
             )}
           </Grid>
         </Grid>
