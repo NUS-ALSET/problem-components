@@ -64,7 +64,7 @@ class Example extends React.Component {
               alt: 'media',
             })
             .then(
-              res => this.setState({ solution: { json: JSON.parse(res.body), provided: JSON.parse(res.body) } }),
+              res => this.setState({ solution: { json: JSON.parse(res.body) } }),
               reason => console.log('error', reason),
             );
           // window.gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
