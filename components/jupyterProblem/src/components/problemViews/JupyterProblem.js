@@ -57,7 +57,10 @@ class JupyterProblem extends React.PureComponent {
     },
   };
 
-  closeDialog = () => this.props.dispatch(problemSolveSuccess(this.props.problem.problemId, ''));
+  closeDialog = () => {
+    this.props.problemSolveSuccess();
+    this.props.dispatch(problemSolveSuccess(this.props.problem.problemId, ''));
+  }
   onSolutionFileChange = e => {
     if (this.props.onChange) {
       this.props.onChange(e.target.value);
@@ -68,14 +71,14 @@ class JupyterProblem extends React.PureComponent {
   };
   onSolutionRefreshClick = () => {
     const { dispatch, problem, solution } = this.props;
-
+    this.props.problemSolveUpdate(problem.pathId, problem.problemId, this.state.solutionURL || (solution && solution.id));
     dispatch(
       problemSolveUpdate(problem.pathId, problem.problemId, this.state.solutionURL || (solution && solution.id)),
     );
   };
   onCommit = () => {
     const { dispatch, problem } = this.props;
-
+    this.props.problemSolutionSubmitRequest();
     dispatch(problemSolutionSubmitRequest(problem.owner, problem.problemId, this.state.solutionURL));
     this.setState({
       solutionURL: undefined,

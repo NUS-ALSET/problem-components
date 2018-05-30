@@ -1,38 +1,58 @@
 import React, { Component } from 'react'
 import Grid from 'material-ui/Grid';
 import TextField from 'material-ui/TextField';
-import SupervisorAccount from '@material-ui/icons/SupervisorAccount';
-import Input from '@material-ui/icons/Input';
+import Button from '@material-ui/core/Button';
 
 export default class ServiceURL extends Component {
-  updateField = () => (event) => {
-    console.log('update', event.target.value)
-    fetch(event.target.value)
-    .then(response => response.json())
-    .then(json => 
-      this.props.onPastingUrl(json)
-    );
+  constructor() {
+    super();
+    this.state = {
+      problemUrl:'https://raw.githubusercontent.com/walkwel/problem-components/master/jupyter-notebook-viewer/src/notebook.ipynb',
+      executionServiceUrl: 'https://usjqn1w4b6.execute-api.eu-central-1.amazonaws.com/Prod'
+    }
+  }
+  handleSubmit = (e) => {
+    e.preventDefault();
+    this.props.onPastingUrl(this.state);
   }
   render() {
     return (
-      <div>
-        <Grid container spacing={8} justify="center" alignItems="flex-end">
-          <Grid item>
-            <SupervisorAccount />
-          </Grid>
-          <Grid item>
-            <TextField onChange={this.updateField()} style={{width: '25rem'}} id="input-with-icon-grid" label="Public Problem URL" />
-          </Grid>
+      <Grid container justify='center'>
+        <Grid item xs={10}>
+            <div>
+            <form onSubmit={(e) =>this.handleSubmit(e)}>
+                  <TextField
+                    value={this.state.problemUrl} label="Public Problem URL"
+                    InputLabelProps={{
+                      style: {
+                        top: 24,
+                        left: 24
+                      }
+                    }}
+                    fullWidth
+                    style={{ padding: 24, position: "relative", }}
+                />
+                <br />
+                  <TextField
+                    value={this.state.executionServiceUrl} 
+                    label="Jupyter Execution Service Url"
+                    InputLabelProps={{
+                      style: {
+                        top: 24,
+                        left: 24
+                      }
+                    }}
+                    fullWidth
+                    style={{ padding: 24, position: "relative" }}
+                />
+                <br />
+                <Button type='submit' variant="raised" color="primary">
+                Submit
+                </Button>
+            </form>
+            </div>
         </Grid>
-        <Grid container spacing={8} justify="center" alignItems="flex-end">
-          <Grid item>
-            <Input />
-          </Grid>
-          <Grid item>
-            <TextField style={{width: '25rem'}} id="input-with-icon-grid" label="Jupyter Execution Service Url" />
-          </Grid>
-        </Grid>
-      </div>
+    </Grid>
     )
   }
 }

@@ -10,100 +10,76 @@ class Example extends React.Component {
     this.state = {
       problemFetched: false,
       ProblemFile: {},
+      solution: {},
     };
     this._getProblem = this._getProblem.bind(this);
     this._getStaticProblem = this._getStaticProblem.bind(this);
+    this._getId = this._getId.bind(this);
+    this._problemSolveUpdate = this._problemSolveUpdate.bind(this);
   }
   componentDidMount() {
     // this._getProblem();
-    this._getStaticProblem();
+  }
+  _getId(url) {
+    const len = url.length;
+    const str = url.lastIndexOf('/');
+    return url.substring(str + 1, len);
+  }
+  _problemSolveUpdate(one, two, url) {
+    const id = this._getId(url);
+    // Get File
+    this._getStaticProblem(id);
+  }
+  _problemSolutionSubmitRequest() {
+    alert('_problemSolutionSubmitRequest');
+  }
+  _problemSolveSuccess() {
+    alert('_problemSolveSuccess');
   }
   /**
    * Example function to get notebook's executed JSON data of given problem
    */
   _getProblem(json) {
-    fetch('https://usjqn1w4b6.execute-api.eu-central-1.amazonaws.com/Prod', {
-      method: 'POST',
-      body: JSON.stringify(Notebook),
-      headers: {
-        'user-agent': 'Mozilla/4.0 MDN Example',
-        'content-type': 'application/json',
-      },
-      mode: 'no-cors',
-    })
+    fetch(json.problemUrl)
       .then(response => response.json())
       .then(data => {
-        this.setState({ ProblemFile: data });
+        this.setState({ ProblemFile: { problemJSON: data }, problemFetched: true });
       });
   }
-  _getStaticProblem() {
-    this.setState({
-      ProblemFile: {
-        problemJSON: {
-          cells: [
-            {
-              cell_type: 'markdown',
-              metadata: { colab_type: 'text', id: '9w5dA4ucVcbz' },
-              source: ['## Create the function sum() that accepts two parameters and returns the sum of them. '],
-            },
-            {
-              cell_type: 'code',
-              execution_count: 1,
-              metadata: {
-                colab: { autoexec: { startup: false, wait_interval: 0 } },
-                colab_type: 'code',
-                id: 'ASdL5tJ0VbU-',
-              },
-              outputs: [],
-              source: ['#def sum\n'],
-            },
-            {
-              cell_type: 'markdown',
-              metadata: { colab_type: 'text', id: 'bvAlsa6kxNtf' },
-              source: ['## Do not edit any code below this point. These are the tests to validate your function.'],
-            },
-            {
-              cell_type: 'code',
-              execution_count: 2,
-              metadata: {
-                colab: { autoexec: { startup: false, wait_interval: 0 } },
-                colab_type: 'code',
-                id: 'e28OMnv5Vwov',
-              },
-              outputs: [{ name: 'stdout', output_type: 'stream', text: ['One of the tests failed.\n'] }],
-              source: [
-                'try:\n',
-                '  assert(sum(2,2) == 4)\n',
-                '  assert(sum(2,1) == 3)\n',
-                'except:\n',
-                '  print("One of the tests failed.")\n',
-              ],
-            },
-          ],
-          metadata: {
-            colab: {
-              collapsed_sections: [],
-              default_view: {},
-              name: 'Sum.ipynb',
-              provenance: [],
-              version: '0.3.2',
-              views: {},
-            },
-            kernelspec: { display_name: 'Python 3', name: 'python3' },
-          },
-          nbformat: 4,
-          nbformat_minor: 0,
-        },
-      },
-      problemFetched: true,
+  _getStaticProblem = id => {
+    window.gapi.load('client:auth2', () => {
+      // 2. Initialize the JavaScript client library.
+      window.gapi.client
+        .init({
+          apiKey: 'AIzaSyC27mcZBSKrWavXNhsDA1HJCeUurPluc1E',
+          // clientId and scope are optional if auth is not required.
+          clientId: '765594031611-aitdj645mls974mu5oo7h7m27bh50prc.apps.' + 'googleusercontent.com',
+          discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+        })
+        .then(resolve => {
+          // 3. Initialize and make the API request.
+          window.gapi.client.drive.files
+            .get({
+              fileId: id,
+              alt: 'media',
+            })
+            .then(
+              res => this.setState({ solution: { json: JSON.parse(res.body) } }),
+              reason => console.log('error', reason),
+            );
+          // window.gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+          // updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          // console.log('resolve', resolve)
+          // fetch('https://www.googleapis.com/drive/v3/files/1fu4vKrbwz4b4QzvHJzKo4CAPefIMGmd?alt=media')
+          //   .then(data => console.log('------', data))
+        });
     });
-  }
+  };
   render() {
-    console.log(this.state);
     const { problemFetched, ProblemFile } = this.state;
     return (
       <div>
-        <ServiceURL onPastingUrl={this.handleUrl} />
+        <ServiceURL onPastingUrl={this._getProblem} />
         {/* {this.state.problems && (
           <div>
             <h3>{this.state.problems.userId}</h3>
@@ -111,11 +87,17 @@ class Example extends React.Component {
           </div>
         )} */}
         <Grid container justify="center">
-          <Grid item xs={4}>
-            {problemFetched ? (
-              <Problem dispatch={() => {}} onChange={() => {}} problem={ProblemFile} solution={{}} />
-            ) : (
-              'Loading'
+          <Grid item xs={10}>
+            {problemFetched && (
+              <Problem
+                problemSolveUpdate={this._problemSolveUpdate}
+                problemSolutionSubmitRequest={this._problemSolutionSubmitRequest}
+                problemSolveSuccess={this._problemSolveSuccess}
+                dispatch={() => {}}
+                onChange={() => {}}
+                problem={ProblemFile}
+                solution={this.state.solution}
+              />
             )}
           </Grid>
         </Grid>
